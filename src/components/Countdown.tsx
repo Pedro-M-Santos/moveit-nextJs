@@ -1,24 +1,13 @@
 import styles from '../styles/components/Countdown.module.css'
-import React from 'react'
+import React, { useContext } from 'react'
+import { ChallengesContext } from '../contexts/ChallengesContext';
+import { CountdownContext } from '../contexts/CountdownContext';
 
 
 export default function Countdown(){
-    const [time, setTime] = React.useState(25*60)
-    const [active, setActive] = React.useState(false)
-
-    React.useEffect(() => {
-        if(active && time > 0){
-            setTimeout(() => setTime(time => time-1), 1000);
-        }
-        // return () => (console.log("Unmounting!"))
-    }, [active,time])
-
-    const minutes = Math.floor(time/60)
-    const seconds = time % 60
+    const {minutes,seconds,hasFinished,isActive,startCountdown,resetCountdown} = useContext(CountdownContext)
     const [minuteLeft, minuteRight] = String(minutes).padStart(2,'0').split('')
     const [secondLeft, secondRight] = String(seconds).padStart(2,'0').split('')
-
-    const startCountdown= () => setActive(active => true)
 
     return(
         <div>
@@ -33,9 +22,32 @@ export default function Countdown(){
                     <span>{secondRight}</span>
                 </div>
             </div>
-            <button type="button" onClick={()=>startCountdown()} className={styles.countdownButton}>
-                    Iniciar um ciclo
-            </button>
+            {hasFinished?
+                (
+                    <button type="button" onClick={()=>startCountdown()}
+                    className={`${styles.countdownButton}`}
+                    disabled>
+                        Ciclo encerrado
+                    </button>
+                ):
+                (
+                    <React.Fragment>
+                        {!isActive?
+                        (
+                            <button type="button" onClick={()=>startCountdown()}
+                            className={`${styles.countdownButton}`}>
+                                Iniciar um ciclo
+                            </button>
+                        ):
+                        (
+                            <button type="button" onClick={()=>resetCountdown()} 
+                            className={`${styles.countdownButton} ${styles.countdownButtonActive}`}>
+                                Abandonar o ciclo
+                            </button>
+                        )}
+                    </React.Fragment>
+                )
+            }
         </div>
 
     )
